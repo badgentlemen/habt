@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [{
+            "name": "Launch index.ts",
+            "type": "node",
+            "request": "launch",
+            "env": {"term": "Облака"},
+            "runtimeArgs": [
+                "-r",
+                "ts-node/register"
+            ],
+            "args": [
+                "${workspaceFolder}/index.ts"
+            ]
+    }]
+}
