@@ -1,6 +1,6 @@
 import { Habt } from './habt'
 
-let searchTerm = "Илон Маск";
+let searchTerm = "Реакт";
 
 let habt = new Habt({
     searchTerm,
