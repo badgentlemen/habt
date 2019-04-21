@@ -9,5 +9,6 @@ let habt = new Habt({
 
 
 habt.search().then(posts => {
+    habt.isProcessDone
     console.log(posts);
 })
