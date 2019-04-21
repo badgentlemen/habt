@@ -7,9 +7,9 @@ interface IHabrPostDetail {
     published_at: string;
     title: string;
     text: string;
-    rating: Number;
+    rating: string;
     views: string;
-    comments: Number;
+    comments: string;
 }
 
 interface IHabrUser {
@@ -57,7 +57,6 @@ export class Habt {
                     var index = i + 2;
                     const pageEndpoint = self.sequilizeEndpoint(index);
                     const response = await self.seguePageAndParse(pageEndpoint);
-                    response.url = pageEndpoint;
                     promises.push(response);
                 }
                 otherPagesPosts = [].concat(...promises.map(response => response ? response.posts : []));
@@ -83,7 +82,9 @@ export class Habt {
             if (requirePagesCount) {
                 const pagesCountNodeURL = node.querySelector('.toggle-menu_pagination > .toggle-menu__item_pagination:last-child > .toggle-menu__item-link_pagination').getAttribute('href');
 
-                pagesCount = pagesCountNodeURL ? this.searchPageCountFromSource(pagesCountNodeURL) : 0
+                if (pagesCountNodeURL) {
+                    pagesCount = this.searchPageCountFromSource(pagesCountNodeURL) 
+                }
             }
             
             let liCollection = Array.from(node.querySelectorAll('.content-list_posts > .content-list__item_post')) as HTMLLIElement[];
@@ -91,12 +92,14 @@ export class Habt {
             let posts: IHabrPostDetail[] = liCollection.map(element => this.postNodeParse(element));
             return {
                 posts,
-                pagesCount
+                pagesCount,
+                url
             };
         } catch(error) {
             return {
                 posts: [],
-                pagesCount: 0
+                pagesCount: 0,
+                url
             };
         }
     }
@@ -111,9 +114,11 @@ export class Habt {
         const link = post && post.hasAttribute('href') ? post.getAttribute('href') : ''
         const title = post && post.innerHTML ? this.formatText(post.innerHTML) : '';
         const text = node.querySelector('.post__text') && node.querySelector('.post__text').innerHTML ? this.formatText(node.querySelector('.post__text').innerHTML) : ''
-        const rating = node.querySelector('.voting-wjt__counter') ? new Number(node.querySelector('.voting-wjt__counter').innerHTML) : 0;
-        const views = node.querySelector('.post-stats__views-count').innerHTML || ''
-        const comments = node.querySelector('.post-stats__comments-count') ? new Number(node.querySelector('.post-stats__comments-count').innerHTML) : 0;
+        const ratingSelector = node.querySelector('.voting-wjt__counter')
+        const rating = ratingSelector && ratingSelector.innerHTML ? ratingSelector.innerHTML.replace('+', '') : '';
+        const views = node.querySelector('.post-stats__views-count').innerHTML || '';
+        const commentsSelector = node.querySelector('.post-stats__comments-count');
+        const comments = commentsSelector && commentsSelector ? node.querySelector('.post-stats__comments-count').innerHTML : '';
 
         return {
             user: {

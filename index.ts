@@ -3,13 +3,13 @@ const clear = require('clear');
 const chalk = require('chalk');
 const figlet = require('figlet');
 const inquirer = require('inquirer');
-const CLI = require('clui');
-
-const Spinner = CLI.Spinner;
+const ora = require('ora');
 
 const cleanup = () => {
     clear();
 };
+
+const notFoundMessage = 'По запросу ничего не найдено';
 
 cleanup();
 
@@ -65,15 +65,11 @@ const run = async () => {
         searchTerm,
         orderBy,
     });
-
     const searchWaitingMessage = `Пожалуйста, подождите. Ищем статьи на Хабре по вашему запросу "${searchTerm}".`
-
-    const status = new Spinner(searchWaitingMessage);
-    status.start();
-    let posts = []
-    posts = await habt.search();
-    status.stop();
-    console.log(posts);
+    const spinner = ora(searchWaitingMessage).start();
+    const posts = await habt.search();
+    spinner.stop();
+    console.log(posts.length > 0 ? posts : notFoundMessage);
 };
 
 run();
