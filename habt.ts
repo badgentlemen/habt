@@ -64,14 +64,15 @@ export class Habt {
         }
         catch (error) {
             console.log(error);
+            this.isProcessDone = true;
             return [];
         }
     }
 
     private async seguePageAndParse(url: URL, requirePagesCount: Boolean = false): Promise<IHabrResponse | null> {
         try {
-            let dom = await JSDOM.fromURL(url);
-            let node = dom.window.document;
+            const dom = await JSDOM.fromURL(url);
+            const node = dom.window.document;
 
             let pagesCount: number = 0
 
