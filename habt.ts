@@ -50,26 +50,30 @@ export class Habt {
             const self = this;
             const firsQuery = await self.seguePageAndParse(self.firstPage, true);
             const maxPage = firsQuery.pagesCount;
-            let promises: IHabrResponse[] = [];
-            for (let i = 0; i < maxPage - 1; i++) {
-                var index = i + 2;
-                const pageEndpoint = self.sequilizeEndpoint(index);
-                const response = await self.seguePageAndParse(pageEndpoint);
-                response.url = pageEndpoint;
-                promises.push(response);
+            let otherPagesPosts: IHabrPostDetail[] = [];
+            if (maxPage > 1) {
+                let promises: IHabrResponse[] = [];
+                for (let i = 0; i < maxPage - 1; i++) {
+                    var index = i + 2;
+                    const pageEndpoint = self.sequilizeEndpoint(index);
+                    const response = await self.seguePageAndParse(pageEndpoint);
+                    response.url = pageEndpoint;
+                    promises.push(response);
+                }
+                otherPagesPosts = [].concat(...promises.map(response => response ? response.posts : []));
             }
-            const otherPagesPosts = [].concat(...promises.map(response => response ? response.posts : []));
+            
             this.isProcessDone = true;
             return [].concat(...firsQuery.posts, otherPagesPosts);
         }
         catch (error) {
             console.log(error);
             this.isProcessDone = true;
-            return [];
+            return error;
         }
     }
 
-    private async seguePageAndParse(url: URL, requirePagesCount: Boolean = false): Promise<IHabrResponse | null> {
+    private async seguePageAndParse(url: URL, requirePagesCount: Boolean = false): Promise<IHabrResponse> {
         try {
             const dom = await JSDOM.fromURL(url);
             const node = dom.window.document;
@@ -90,7 +94,10 @@ export class Habt {
                 pagesCount
             };
         } catch(error) {
-            return null;
+            return {
+                posts: [],
+                pagesCount: 0
+            };
         }
     }
 

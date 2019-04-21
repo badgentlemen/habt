@@ -5,9 +5,6 @@
             "name": "Launch index.ts",
             "type": "node",
             "request": "launch",
-            "env": {
-                "term": "Илон Макс"
-            },
             "runtimeArgs": [
                 "-r",
                 "ts-node/register"
